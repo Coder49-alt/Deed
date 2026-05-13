@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DEED — AI Real Estate Compliance</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--indigo:#1e3a5f;--indigo-l:#2a4d7f;--indigo-pale:#e8eef6;--green:#16a34a;--green-l:#dcfce7;--green-pale:#f0fdf4;--red:#dc2626;--red-l:#fee2e2;--amber:#d97706;--amber-l:#fef3c7;--bg:#f4f6fb;--surface:#fff;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--sidebar-w:220px;--r:10px;--rl:14px}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.page{display:none;min-height:100vh;flex-direction:column}
+.page.active{display:flex}
+/* NAV */
+.top-nav{display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:64px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:18px;color:var(--indigo);cursor:pointer;text-decoration:none}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-links a{font-size:14px;color:var(--muted);text-decoration:none;cursor:pointer;transition:color .2s}
+.nav-links a:hover{color:var(--indigo)}
+.btn{padding:9px 20px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;border:none;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--indigo);color:#fff}
+.btn-primary:hover{background:var(--indigo-l)}
+.btn-outline{background:transparent;color:var(--indigo);border:1.5px solid var(--indigo)}
+.btn-outline:hover{background:var(--indigo-pale)}
+.btn-sm{padding:7px 14px;font-size:13px}
+.btn-success{background:var(--green);color:#fff}
+/* LANDING HERO */
+.hero{padding:80px;display:flex;align-items:center;gap:60px;background:#fff}
+.hero-text h1{font-family:'DM Serif Display',serif;font-size:52px;line-height:1.1;color:var(--indigo)}
+.hero-text h1 span{color:var(--green)}
+.hero-text p{font-size:16px;color:var(--muted);max-width:420px;margin:16px 0 32px;line-height:1.6}
+.hero-btns{display:flex;gap:12px}
+.hero-img{flex-shrink:0;width:420px;height:280px;background:linear-gradient(135deg,#1e3a5f,#2a6499);border-radius:var(--rl);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.hero-img::after{content:'✓ COMPLIANCE SECURED';position:absolute;bottom:16px;right:16px;background:var(--green);color:#fff;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600}
+.hero-screen{width:78%;height:68%;background:rgba(255,255,255,.08);border-radius:8px;border:1px solid rgba(255,255,255,.15);overflow:hidden}
+.hs-bar{height:26px;background:rgba(255,255,255,.12);display:flex;align-items:center;padding:0 10px;gap:5px}
+.hs-bar span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3)}
+.hs-body{padding:12px}
+.hs-line{height:6px;background:rgba(255,255,255,.15);border-radius:3px;margin-bottom:8px}
+.hs-badge{display:inline-flex;background:rgba(22,163,74,.3);border:1px solid rgba(22,163,74,.5);border-radius:4px;padding:3px 8px;font-size:9px;color:#86efac;margin-top:6px}
+/* SECTIONS */
+.section{padding:60px 80px}
+.sec-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px}
+.sec-title{font-size:36px;font-family:'DM Serif Display',serif;color:var(--indigo);margin-bottom:36px}
+.diff-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.diff-card{border-radius:var(--rl);padding:28px}
+.diff-card.old{background:#fff5f5;border:1px solid #fecaca}
+.diff-card.new{background:#f0fdf4;border:1px solid #bbf7d0}
+.diff-card h3{font-size:15px;font-weight:600;margin-bottom:14px}
+.diff-item{display:flex;align-items:center;gap:10px;font-size:14px;margin-bottom:10px;color:var(--muted)}
+.di-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.di-icon.bad{background:#fee2e2;color:var(--red)}
+.di-icon.good{background:#dcfce7;color:var(--green)}
+.process-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:30px}
+.process-card{text-align:center;padding:30px 20px}
+.proc-icon{width:56px;height:56px;border-radius:50%;background:var(--indigo-pale);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:22px}
+.process-card h3{font-size:15px;font-weight:600;margin-bottom:8px}
+.process-card p{font-size:14px;color:var(--muted);line-height:1.5}
+.pricing-sec{background:var(--indigo);padding:70px 80px;text-align:center;color:#fff}
+.pricing-sec .sec-title{color:#fff}
+.pricing-card{max-width:460px;margin:0 auto;background:#fff;border-radius:var(--rl);padding:36px;color:var(--text)}
+.p-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:8px}
+.p-price{font-size:48px;font-family:'DM Serif Display',serif;color:var(--indigo)}
+.p-price span{font-size:16px;color:var(--muted);font-family:'DM Sans',sans-serif}
+.p-feats{margin:20px 0;text-align:left}
+.p-feat{display:flex;align-items:center;gap:10px;font-size:14px;padding:8px 0;border-bottom:1px solid var(--border)}
+.p-feat:last-child{border:none}
+.check{color:var(--green);font-weight:700}
+.footer{background:var(--indigo);color:#fff;padding:28px 80px;display:flex;align-items:center;justify-content:space-between}
+.footer-logo{font-size:20px;font-weight:700}
+.footer-copy{font-size:12px;opacity:.6}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:13px;opacity:.7;cursor:pointer;text-decoration:none;color:#fff}
+/* AUTH */
+.auth-page{min-height:100vh;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:40px 20px;position:relative}
+.auth-card{background:#fff;border-radius:var(--rl);border:1px solid var(--border);padding:44px 40px;width:100%;max-width:480px}
+.auth-logo{text-align:center;margin-bottom:20px;font-weight:700;font-size:22px;color:var(--indigo);display:flex;align-items:center;justify-content:center;gap:8px}
+.auth-title{font-size:22px;font-weight:700;text-align:center;margin-bottom:6px}
+.auth-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:24px}
+.divider{display:flex;align-items:center;gap:16px;margin:18px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.auth-footer{text-align:center;margin-top:20px;font-size:14px;color:var(--muted)}
+.auth-footer a{color:var(--indigo);cursor:pointer;text-decoration:none}
+.shield-badge{position:fixed;bottom:24px;right:24px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 18px;font-size:12px;max-width:220px}
+.shield-title{color:var(--green);font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.google-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-weight:500;background:#fff;cursor:pointer;margin-bottom:4px;font-family:inherit;transition:background .2s}
+.google-btn:hover{background:var(--bg)}
+/* APP SHELL */
+.app-shell{display:none;min-height:100vh}
+.app-shell.active{display:flex}
+.sidebar{width:var(--sidebar-w);background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:50}
+.sb-logo{padding:20px 20px 8px;font-weight:700;font-size:16px;color:var(--indigo);display:flex;align-items:center;gap:8px;cursor:pointer}
+.sidebar-nav{flex:1;padding:8px 12px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13px;color:var(--muted);cursor:pointer;transition:all .15s;margin-bottom:2px}
+.nav-item:hover{background:var(--bg);color:var(--text)}
+.nav-item.active{background:var(--indigo-pale);color:var(--indigo);font-weight:500}
+.nav-icon{font-size:15px;width:20px;text-align:center}
+.sidebar-bottom{padding:12px;border-top:1px solid var(--border)}
+.user-pill{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer}
+.user-av{width:32px;height:32px;border-radius:50%;background:var(--indigo);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.user-name{font-size:13px;font-weight:500}
+.user-role{font-size:11px;color:var(--muted)}
+.app-content{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.app-header{background:#fff;border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+.app-header h2{font-size:16px;font-weight:600}
+.header-actions{display:flex;align-items:center;gap:10px}
+.app-body{padding:28px 32px;flex:1}
+.app-view{display:none}
+.app-view.active{display:block}
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:20px}
+.stat-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+.stat-value{font-size:30px;font-weight:600;font-family:'DM Serif Display',serif;color:var(--indigo)}
+.stat-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.stat-sub.up{color:var(--green)}
+.stat-sub.warn{color:var(--amber)}
+/* ALERTS */
+.alert-bar{background:var(--amber-l);border:1px solid #fcd34d;border-radius:var(--r);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.alert-tags{display:flex;gap:10px;flex-wrap:wrap}
+.a-tag{background:#fff;border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:12px}
+.a-tag.warn{border-color:#fca5a5;background:#fff1f1;color:var(--red)}
+.a-tag.ok{border-color:#86efac;background:#f0fdf4;color:var(--green)}
+/* SECTION HEADER */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.sec-hdr h3{font-size:15px;font-weight:600}
+/* AUDIT LIST */
+.audit-list{background:#fff;border-radius:var(--rl);border:1px solid var(--border);overflow:hidden}
+.audit-row{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);gap:14px;cursor:pointer;transition:background .15s}
+.audit-row:last-child{border:none}
+.audit-row:hover{background:var(--bg)}
+.audit-addr{font-size:14px;font-weight:500}
+.audit-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.badge.critical{background:var(--red-l);color:var(--red)}
+.badge.warn{background:var(--amber-l);color:var(--amber)}
+.badge.pass{background:var(--green-l);color:var(--green)}
+.badge.active-b{background:var(--indigo-pale);color:var(--indigo)}
+/* FORMS */
+.form-row{margin-bottom:16px}
+.form-row label{display:block;font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;resize:vertical}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{outline:none;border-color:var(--indigo)}
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* GENERATOR */
+.gen-layout{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.gen-panel{background:#fff;border-radius:var(--rl);border:1px solid var(--border);padding:24px}
+.gen-panel h3{font-size:15px;font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.compliance-notice{background:var(--green-pale);border:1px solid #bbf7d0;border-radius:8px;padding:12px 16px;margin-top:14px;display:flex;gap:10px;font-size:13px;color:var(--green)}
+.live-draft{font-size:14px;line-height:1.8;color:var(--text)}
+.live-draft p{margin-bottom:14px}
+.live-draft blockquote{font-style:italic;border-left:3px solid var(--indigo);padding-left:14px;color:var(--muted);margin:12px 0}
+.draft-actions{display:flex;gap:10px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+.voice-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:4px 10px;background:var(--green-pale);color:var(--green);border-radius:20px}
+.v-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+/* FOLLOW-UP */
+.fu-layout{display:grid;grid-template-columns:1fr 310px;gap:24px;align-items:start}
+.step-pill{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;border:2px solid var(--border);color:var(--muted);cursor:pointer;flex-shrink:0}
+.step-pill.active{border-color:var(--indigo);background:var(--indigo);color:#fff}
+.step-pill.done{border-color:var(--green);background:var(--green-pale);color:var(--green)}
+.email-preview{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:20px;font-size:14px;line-height:1.7}
+.e-subject{font-weight:600;padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:14px}
+.e-body p{margin-bottom:12px}
+.score-pill{padding:4px 12px;background:var(--green-pale);color:var(--green);border-radius:20px;font-size:12px;font-weight:600}
+.ctx-card{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:18px;margin-bottom:14px}
+.ctx-card h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px}
+.ctx-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)}
+.ctx-row:last-child{border:none}
+.ctx-val{font-weight:500}
+.voice-tag{padding:3px 10px;background:var(--green-pale);border-radius:20px;font-size:12px;color:var(--green)}
+/* LIBRARY */
+.lib-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.lib-card{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:20px}
+.lib-card h4{font-size:15px;font-weight:600;margin-bottom:6px}
+.lib-card p{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px}
+.tag-list{display:flex;flex-wrap:wrap;gap:6px}
+.tag{padding:3px 10px;border-radius:20px;font-size:12px;background:var(--indigo-pale);color:var(--indigo)}
+.tag.red{background:var(--red-l);color:var(--red)}
+/* VOICE TRAINING */
+.vt-layout{display:grid;grid-template-columns:1fr 330px;gap:24px;align-items:start}
+.upload-zone{border:2px dashed var(--border);border-radius:var(--r);padding:32px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px}
+.upload-zone:hover{border-color:var(--indigo);background:var(--indigo-pale)}
+.file-chip{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border-radius:8px;margin-bottom:8px;font-size:13px}
+.file-chip .rm{margin-left:auto;cursor:pointer;color:var(--muted)}
+.progress-step{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start}
+.ps-icon{width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px}
+.ps-icon.done{background:var(--green-l);color:var(--green)}
+.ps-icon.pending{background:var(--border);color:var(--muted)}
+.ps-title{font-size:13px;font-weight:600;margin-bottom:3px}
+.ps-desc{font-size:12px;color:var(--muted)}
+.status-card{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:20px;margin-bottom:14px}
+.s-bar{height:8px;background:var(--border);border-radius:4px;margin:8px 0 6px;overflow:hidden}
+.s-bar-fill{height:100%;border-radius:4px;background:var(--green)}
+.impact-card{background:var(--indigo);color:#fff;border-radius:var(--r);padding:20px}
+.impact-card h4{font-size:13px;margin-bottom:10px;opacity:.8}
+.impact-card p{font-size:12px;line-height:1.6;opacity:.85;margin-bottom:12px}
+/* SUBSCRIPTION */
+.sub-card{background:#fff;border-radius:var(--rl);border:1px solid var(--border);padding:24px;margin-bottom:20px}
+.sub-name{font-size:22px;font-weight:700;color:var(--indigo);margin-top:4px}
+.usage-bar-wrap{margin-bottom:12px}
+.usage-bar-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.u-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.u-bar-fill{height:100%;background:var(--indigo);border-radius:4px}
+.plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.plan-card{background:#fff;border-radius:var(--rl);border:1px solid var(--border);padding:24px}
+.plan-price{font-size:28px;font-family:'DM Serif Display',serif;color:var(--indigo)}
+.plan-price span{font-size:14px;color:var(--muted);font-family:'DM Sans',sans-serif}
+.plan-feats{list-style:none;margin:12px 0}
+.plan-feats li{font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.plan-feats li:last-child{border:none}
+.cmp-table{background:#fff;border-radius:var(--rl);border:1px solid var(--border);overflow:hidden;margin-bottom:20px}
+.cmp-table table{width:100%;border-collapse:collapse}
+.cmp-table th{padding:12px 16px;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);background:var(--bg);text-align:left}
+.cmp-table th:not(:first-child){text-align:center}
+.cmp-table td{padding:14px 16px;font-size:14px;border-top:1px solid var(--border)}
+.cmp-table td:not(:first-child){text-align:center}
+.cmp-table tr:hover td{background:var(--bg)}
+.billing-sec{background:#fff;border-radius:var(--rl);border:1px solid var(--border);overflow:hidden}
+.inv-row{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);gap:12px}
+.inv-row:last-child{border:none}
+.inv-icon{width:36px;height:36px;border-radius:8px;background:var(--indigo-pale);display:flex;align-items:center;justify-content:center;font-size:16px}
+.scale-card{background:var(--indigo);color:#fff;border-radius:var(--rl);padding:24px}
+.scale-card h3{font-size:18px;font-weight:700;margin-bottom:8px}
+/* SETTINGS */
+.settings-tabs-row{display:inline-flex;background:#fff;border-radius:10px;padding:4px;border:1px solid var(--border);margin-bottom:24px}
+.s-tab{padding:8px 18px;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s}
+.s-tab.active{background:var(--indigo);color:#fff}
+.settings-sec{background:#fff;border-radius:var(--rl);border:1px solid var(--border);padding:24px;margin-bottom:20px}
+.settings-sec h3{font-size:15px;font-weight:600;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.inline-label{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+/* COMPARISON */
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.cmp-card{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:20px}
+.cmp-card h4{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:12px}
+.orig-text{font-size:14px;line-height:1.7}
+.hl-bad{background:#fee2e2;border-bottom:2px solid var(--red);padding:0 2px;border-radius:3px}
+.hl-good{background:#dcfce7;border-bottom:2px solid var(--green);padding:0 2px;border-radius:3px}
+.viol-card{background:#fff8f0;border:1px solid #fcd34d;border-radius:var(--r);padding:16px 20px;margin-bottom:16px}
+.viol-title{font-size:14px;font-weight:600;color:var(--amber);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.viol-desc{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px}
+.viol-actions{display:flex;gap:10px}
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:var(--rl);padding:32px;max-width:520px;width:90%}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:8px}
+.modal-sub{font-size:14px;color:var(--muted);margin-bottom:20px}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--indigo);color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+/* SEARCH */
+.search-input{padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:#fff}
+.search-input:focus{outline:none;border-color:var(--indigo)}
+.filter-select{padding:9px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:#fff;cursor:pointer}
+</style>
+</head>
+<body>
+
+<!-- LANDING -->
+<div id="landing" class="page active">
+  <nav class="top-nav">
+    <div class="logo" onclick="showPage('landing')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      DEED
+    </div>
+    <div class="nav-links">
+      <a>How it works</a>
+      <a>Pricing</a>
+      <a onclick="showPage('login')">Log In</a>
+    </div>
+    <button class="btn btn-primary" onclick="showPage('signup')">Sign Up — Free</button>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-text">
+      <div style="display:inline-flex;align-items:center;gap:6px;background:var(--green-pale);border:1px solid #bbf7d0;border-radius:20px;padding:5px 14px;font-size:12px;color:var(--green);margin-bottom:20px;font-weight:600;">✓ Fair Housing Compliant AI</div>
+      <h1>Write less.<br>Close more.<br><span>Sound like yourself.</span></h1>
+      <p>AI-powered writing + compliance for real estate agents. Catch violations before they cost you $26,262. Scale your marketing without the regulatory risk.</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary" onclick="showPage('signup')" style="padding:12px 28px;font-size:15px;">Get Started Free</button>
+        <button class="btn btn-outline" onclick="showApp('dashboard')" style="padding:12px 28px;font-size:15px;">▶ Watch Demo</button>
+      </div>
+    </div>
+    <div class="hero-img">
+      <div class="hero-screen">
+        <div class="hs-bar"><span></span><span></span><span></span></div>
+        <div class="hs-body">
+          <div class="hs-line" style="width:90%"></div>
+          <div class="hs-line" style="width:70%"></div>
+          <div class="hs-line" style="width:80%"></div>
+          <div class="hs-badge">✓ Compliance Passed</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:var(--bg);">
+    <div class="sec-label">The Difference</div>
+    <div class="sec-title">The Old Way vs. Deed</div>
+    <div class="diff-grid">
+      <div class="diff-card old">
+        <h3>⊗ The Old Way</h3>
+        <div class="diff-item"><div class="di-icon bad">✕</div>Manual legal checks that take hours.</div>
+        <div class="diff-item"><div class="di-icon bad">✕</div>Generic AI that sounds like a robot.</div>
+        <div class="diff-item"><div class="di-icon bad">✕</div>Risk of $26k+ Fair Housing fines.</div>
+      </div>
+      <div class="diff-card new">
+        <h3>✓ The Deed Way</h3>
+        <div class="diff-item"><div class="di-icon good">✓</div>Real-time scanning against Fair Housing laws.</div>
+        <div class="diff-item"><div class="di-icon good">✓</div>Custom training to match your unique brand voice.</div>
+        <div class="diff-item"><div class="di-icon good">✓</div>1-click publishing with peace of mind.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background:#fff;">
+    <div class="sec-label">Process</div>
+    <div class="sec-title">Compliance in Seconds</div>
+    <div class="process-grid">
+      <div class="process-card"><div class="proc-icon">🔗</div><h3>Connect & Train</h3><p>Sync your past listings. Deed learns your specific tone and style instantly.</p></div>
+      <div class="process-card"><div class="proc-icon">🔍</div><h3>Generate & Scan</h3><p>Write your copy. Deed's AI auditor scans every word for regulatory violations in real-time.</p></div>
+      <div class="process-card"><div class="proc-icon">✅</div><h3>Post & Close</h3><p>Get a green light audit report and post to your channels. Focus on closing, not worrying.</p></div>
+    </div>
+  </section>
+
+  <section class="pricing-sec">
+    <div class="sec-label" style="color:rgba(255,255,255,.5);">Simple, Unified Pricing</div>
+    <div class="sec-title">No complex tiers.</div>
+    <p style="color:rgba(255,255,255,.7);margin:-20px 0 36px;font-size:15px;">One professional tool for agents who value their time and reputation.</p>
+    <div class="pricing-card">
+      <div class="p-label">Pro Plan</div>
+      <div class="p-price">$29<span>/month</span></div>
+      <div class="p-feats">
+        <div class="p-feat"><span class="check">✓</span> Unlimited AI Content Generation</div>
+        <div class="p-feat"><span class="check">✓</span> Real-time Compliance Audits</div>
+        <div class="p-feat"><span class="check">✓</span> Brand Voice Training (1 Profile)</div>
+        <div class="p-feat"><span class="check">✓</span> Fair Housing Risk Scoring</div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px;" onclick="showPage('signup')">Get Started Now</button>
+      <p style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center;">No credit card required to start.</p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-logo">DEED</div>
+    <div class="footer-copy">© 2024 DEED Compliance AI. All rights reserved.</div>
+    <div class="footer-links"><a>Privacy Policy</a><a>Terms of Service</a><a>Fair Housing Guide</a><a>Contact Support</a></div>
+  </footer>
+</div>
+
+<!-- SIGN UP -->
+<div id="signup" class="page">
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Deed
+      </div>
+      <div class="auth-title">Create your account</div>
+      <div class="auth-sub">Join the institutional real estate compliance platform.</div>
+      <button class="google-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Sign up with Google
+      </button>
+      <div class="divider"><span>or continue with email</span></div>
+      <div class="form-row"><label>Full Name</label><input type="text" id="su-name" placeholder="John Doe"></div>
+      <div class="form-row"><label>Work Email</label><input type="email" id="su-email" placeholder="name@company.com"></div>
+      <div class="form-row"><label>Password</label><input type="password" id="su-pass" placeholder="••••••••••••"><div style="font-size:12px;color:var(--muted);margin-top:4px;">Must be at least 12 characters.</div></div>
+      <button class="btn btn-primary" style="width:100%;padding:13px;font-size:15px;margin-top:4px;justify-content:center;" onclick="doSignup()">Create Account</button>
+      <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:10px;">By clicking "Create Account", you agree to our <a href="#" style="color:var(--indigo);">Terms of Service</a> and <a href="#" style="color:var(--indigo);">Privacy Policy</a>.</p>
+      <div class="auth-footer">Already have an account? <a onclick="showPage('login')">Sign In</a></div>
+    </div>
+    <div class="shield-badge">
+      <div class="shield-title">🛡 COMPLIANCE SHIELD ACTIVE</div>
+      <div style="font-size:12px;color:var(--muted);">Institutional rigor for modern real estate portfolios.</div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="login" class="page">
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Deed
+      </div>
+      <div class="auth-title">Welcome back</div>
+      <div class="auth-sub">Sign in to your compliance dashboard.</div>
+      <button class="google-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Continue with Google
+      </button>
+      <div class="divider"><span>or</span></div>
+      <div class="form-row"><label>Work Email</label><input type="email" placeholder="name@company.com"></div>
+      <div class="form-row"><label>Password</label><input type="password" placeholder="••••••••••••"></div>
+      <button class="btn btn-primary" style="width:100%;padding:13px;font-size:15px;justify-content:center;" onclick="showApp('dashboard')">Sign In</button>
+      <div class="auth-footer" style="margin-top:16px;">Don't have an account? <a onclick="showPage('signup')">Sign Up Free</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="app" class="app-shell">
+  <aside class="sidebar">
+    <div class="sb-logo" onclick="showPage('landing')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      DEED AI
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" id="nav-dashboard" onclick="showApp('dashboard')"><span class="nav-icon">⊞</span>Dashboard</div>
+      <div class="nav-item" id="nav-audit" onclick="showApp('audit')"><span class="nav-icon">🕐</span>Audit History</div>
+      <div class="nav-item" id="nav-generator" onclick="showApp('generator')"><span class="nav-icon">✏️</span>Listing Generator</div>
+      <div class="nav-item" id="nav-followup" onclick="showApp('followup')"><span class="nav-icon">📧</span>Follow-Up Engine</div>
+      <div class="nav-item" id="nav-library" onclick="showApp('library')"><span class="nav-icon">📚</span>Compliance Library</div>
+      <div class="nav-item" id="nav-voice" onclick="showApp('voice')"><span class="nav-icon">🎙</span>Voice Training</div>
+      <div class="nav-item" id="nav-subscription" onclick="showApp('subscription')"><span class="nav-icon">💳</span>Subscription</div>
+      <div class="nav-item" id="nav-settings" onclick="showApp('settings')"><span class="nav-icon">⚙️</span>Settings</div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-pill">
+        <div class="user-av">MT</div>
+        <div><div class="user-name">Marcus Thorne</div><div class="user-role">Principal Broker</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="app-content">
+
+    <!-- DASHBOARD -->
+    <div id="view-dashboard" class="app-view active">
+      <div class="app-header">
+        <h2>Dashboard</h2>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="showAuditDetail('4823')">▶ Run Audit</button>
+        </div>
+      </div>
+      <div class="app-body">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-label">Portfolio Health</div><div class="stat-value">98.4%</div><div class="stat-sub up">↑ +0.2% this week</div></div>
+          <div class="stat-card"><div class="stat-label">Active Alerts</div><div class="stat-value" style="color:var(--amber);">3</div><div class="stat-sub warn">Across 14 listings</div></div>
+          <div class="stat-card"><div class="stat-label">Scans This Month</div><div class="stat-value">47</div><div class="stat-sub">Unlimited remaining</div></div>
+          <div class="stat-card"><div class="stat-label">Time Saved</div><div class="stat-value">18h</div><div class="stat-sub up">vs. manual review</div></div>
+        </div>
+        <div class="alert-bar">
+          <div style="font-size:14px;">⚠ <strong>Active Alerts:</strong> 3 potential fair housing violations detected across 14 new listings.</div>
+          <div class="alert-tags">
+            <div class="a-tag warn">Familial Status · 2 Alerts</div>
+            <div class="a-tag warn">Steering Risk · 1 Alert</div>
+            <div class="a-tag ok">Accessibility · Clear</div>
+          </div>
+        </div>
+        <div class="sec-hdr">
+          <h3>Recent Audits</h3>
+          <button class="btn btn-outline btn-sm" onclick="showApp('audit')">View All</button>
+        </div>
+        <div class="audit-list" id="dash-audit-list">
+          <div class="audit-row" onclick="showAuditDetail('4823')"><div style="width:36px;height:36px;border-radius:8px;background:var(--red-l);display:flex;align-items:center;justify-content:center;font-size:16px;">📍</div><div style="flex:1;"><div class="audit-addr">4823 Highland Avenue, Austin TX</div><div class="audit-meta">Audit ID: #DEED-9942 · Oct 24, 2024 14:22 CST</div></div><div class="badge critical">⚠ Critical Violation</div></div>
+          <div class="audit-row" onclick="showAuditDetail('2201')"><div style="width:36px;height:36px;border-radius:8px;background:var(--amber-l);display:flex;align-items:center;justify-content:center;font-size:16px;">📍</div><div style="flex:1;"><div class="audit-addr">2201 Lakefront Drive, Chicago IL</div><div class="audit-meta">Audit ID: #DEED-9941 · Oct 23, 2024 10:05 CST</div></div><div class="badge warn">⚠ Warning</div></div>
+          <div class="audit-row" onclick="showAuditDetail('7710')"><div style="width:36px;height:36px;border-radius:8px;background:var(--green-l);display:flex;align-items:center;justify-content:center;font-size:16px;">📍</div><div style="flex:1;"><div class="audit-addr">7710 Sunset Blvd, Los Angeles CA</div><div class="audit-meta">Audit ID: #DEED-9940 · Oct 22, 2024 09:30 PST</div></div><div class="badge pass">✓ Passed</div></div>
+          <div class="audit-row" onclick="showAuditDetail('900')"><div style="width:36px;height:36px;border-radius:8px;background:var(--green-l);display:flex;align-items:center;justify-content:center;font-size:16px;">📍</div><div style="flex:1;"><div class="audit-addr">900 Oak Street, Nashville TN</div><div class="audit-meta">Audit ID: #DEED-9939 · Oct 21, 2024 15:44 CST</div></div><div class="badge pass">✓ Passed</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUDIT HISTORY -->
+    <div id="view-audit" class="app-view">
+      <div class="app-header"><h2>Audit History</h2><div class="header-actions"><button class="btn btn-outline btn-sm" onclick="toast('CSV exported!')">Export CSV</button><button class="btn btn-outline btn-sm">Filters</button></div></div>
+      <div class="app-body">
+        <div style="display:flex;gap:10px;margin-bottom:20px;">
+          <input class="search-input" type="text" placeholder="Search by address or audit ID..." style="flex:1;" oninput="filterAudits(this.value)">
+          <select class="filter-select"><option>All Statuses</option><option>Critical</option><option>Warning</option><option>Passed</option></select>
+          <select class="filter-select"><option>All Time</option><option>Last 30 Days</option><option>Last 90 Days</option></select>
+        </div>
+        <div class="audit-list" id="audit-list">
+          <div class="audit-row" data-addr="4823 Highland Avenue, Austin TX" onclick="showAuditDetail('4823')"><div style="width:36px;height:36px;border-radius:8px;background:var(--red-l);display:flex;align-items:center;justify-content:center;">📍</div><div style="flex:1;"><div class="audit-addr">4823 Highland Avenue, Austin TX</div><div class="audit-meta">Audit ID: #DEED-9942 · Oct 24, 2024</div></div><div class="badge critical">⚠ Critical</div></div>
+          <div class="audit-row" data-addr="2201 Lakefront Drive, Chicago IL" onclick="showAuditDetail('2201')"><div style="width:36px;height:36px;border-radius:8px;background:var(--amber-l);display:flex;align-items:center;justify-content:center;">📍</div><div style="flex:1;"><div class="audit-addr">2201 Lakefront Drive, Chicago IL</div><div class="audit-meta">Audit ID: #DEED-9941 · Oct 23, 2024</div></div><div class="badge warn">⚠ Warning</div></div>
+          <div class="audit-row" data-addr="7710 Sunset Blvd, Los Angeles CA" onclick="showAuditDetail('7710')"><div style="width:36px;height:36px;border-radius:8px;background:var(--green-l);display:flex;align-items:center;justify-content:center;">📍</div><div style="flex:1;"><div class="audit-addr">7710 Sunset Blvd, Los Angeles CA</div><div class="audit-meta">Audit ID: #DEED-9940 · Oct 22, 2024</div></div><div class="badge pass">✓ Passed</div></div>
+          <div class="audit-row" data-addr="900 Oak Street, Nashville TN" onclick="showAuditDetail('900')"><div style="width:36px;height:36px;border-radius:8px;background:var(--green-l);display:flex;align-items:center;justify-content:center;">📍</div><div style="flex:1;"><div class="audit-addr">900 Oak Street, Nashville TN</div><div class="audit-meta">Audit ID: #DEED-9939 · Oct 21, 2024</div></div><div class="badge pass">✓ Passed</div></div>
+          <div class="audit-row" data-addr="1450 Magnolia Lane, Atlanta GA" onclick="showAuditDetail('1450')"><div style="width:36px;height:36px;border-radius:8px;background:var(--amber-l);display:flex;align-items:center;justify-content:center;">📍</div><div style="flex:1;"><div class="audit-addr">1450 Magnolia Lane, Atlanta GA</div><div class="audit-meta">Audit ID: #DEED-9938 · Oct 20, 2024</div></div><div class="badge warn">⚠ Warning</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUDIT DETAIL -->
+    <div id="view-auditdetail" class="app-view">
+      <div class="app-header"><h2>Audit Detail</h2><div class="header-actions"><button class="btn btn-outline btn-sm" onclick="showApp('audit')">← Back</button><button class="btn btn-outline btn-sm" onclick="toast('PDF exported!')">Export PDF</button></div></div>
+      <div class="app-body" id="audit-detail-content"></div>
+    </div>
+
+    <!-- LISTING GENERATOR -->
+    <div id="view-generator" class="app-view">
+      <div class="app-header"><h2>Listing Generator</h2><div class="header-actions"><span class="voice-badge"><span class="v-dot"></span>Professional & Warm (85% Trained)</span></div></div>
+      <div class="app-body">
+        <div class="gen-layout">
+          <div class="gen-panel">
+            <h3>📄 Property Details</h3>
+            <div class="form-row"><label>Property Address</label><input type="text" id="g-addr" value="123 Maple Avenue, San Francisco, CA"></div>
+            <div class="form-2col">
+              <div class="form-row"><label>Price</label><input type="text" id="g-price" value="$1,250,000"></div>
+              <div class="form-row"><label>Sqft</label><input type="text" id="g-sqft" value="2,450"></div>
+            </div>
+            <div class="form-2col">
+              <div class="form-row"><label>Bedrooms</label><select id="g-beds"><option>3 Beds</option><option>2 Beds</option><option>4 Beds</option><option>5 Beds</option></select></div>
+              <div class="form-row"><label>Bathrooms</label><select id="g-baths"><option>2 Baths</option><option>1 Bath</option><option>3 Baths</option></select></div>
+            </div>
+            <div class="form-row"><label>Key Features</label><textarea id="g-feats" style="min-height:80px;">Gourmet kitchen, hardwood floors, solar panels, private balcony</textarea></div>
+            <div class="form-row"><label>Unique Selling Point</label><input type="text" id="g-usp" value="Unobstructed views of the Golden Gate"></div>
+            <button class="btn btn-primary" style="width:100%;padding:12px;justify-content:center;" onclick="generateListing()">✦ Generate Description</button>
+            <div class="compliance-notice"><span>🛡</span><div><strong>Fair Housing Check</strong><br>AI-assisted screening for non-compliant terminology is active.</div></div>
+          </div>
+          <div class="gen-panel">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+              <h3 style="margin:0;">✏ Live Draft</h3>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-outline btn-sm" onclick="copyDraft()">Copy</button>
+                <button class="btn btn-primary btn-sm" onclick="enhanceDraft()">✦ Enhance</button>
+              </div>
+            </div>
+            <div class="live-draft" id="g-output">
+              <p>Welcome to your future sanctuary at 123 Maple Avenue. From the moment you step through the solid oak front door, you'll feel the meticulous care that defines this residence. The sun-drenched gourmet kitchen isn't just a place to cook; it's the heart of the home, where weekend brunches turn into lifelong memories against a backdrop of pristine hardwood floors.</p>
+              <p>Imagine ending your day on the private balcony, watching the fog roll gently past the Golden Gate Bridge. This isn't just a house; it's a front-row seat to the best San Francisco has to offer. With sustainable solar upgrades and a layout designed for modern life, this home balances sophisticated luxury with warmth that's increasingly rare.</p>
+              <blockquote>"This home has a soul. It's built for those who appreciate both the silence of a well-insulated study and the vibrant energy of a home filled with guests."</blockquote>
+            </div>
+            <div class="draft-actions">
+              <button class="btn btn-outline" style="flex:1;justify-content:center;" onclick="discardDraft()">Discard</button>
+              <button class="btn btn-primary" style="flex:2;justify-content:center;" onclick="finalizeDraft()">Finalize & Export</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOLLOW-UP ENGINE -->
+    <div id="view-followup" class="app-view">
+      <div class="app-header"><h2>Follow-Up Engine</h2><div class="header-actions"><button class="btn btn-outline btn-sm" onclick="toggleAnalytics()">Analytics</button></div></div>
+      <div class="app-body">
+        <div id="fu-main">
+          <div style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:16px 20px;margin-bottom:20px;">
+            <div style="display:flex;gap:8px;" id="steps-bar">
+              <div class="step-pill done" onclick="setStep(1)">1</div>
+              <div class="step-pill active" onclick="setStep(2)">2</div>
+              <div class="step-pill" onclick="setStep(3)">3</div>
+              <div class="step-pill" onclick="setStep(4)">4</div>
+              <div class="step-pill" onclick="setStep(5)">5</div>
+              <div class="step-pill" onclick="setStep(6)">6</div>
+            </div>
+            <div><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:2px;">Current Step</div><div style="font-size:14px;font-weight:600;" id="step-label">Email 2 of 6: Value Proposition</div></div>
+          </div>
+          <div class="fu-layout">
+            <div>
+              <div style="background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:16px 20px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                  <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">AI-Generated Draft</div>
+                  <span class="score-pill">98% Compliance Score</span>
+                </div>
+                <div class="email-preview">
+                  <div class="e-subject" id="e-subject">Subject: Checking in — Deed compliance update</div>
+                  <div class="e-body" id="e-body"><p>Hi John,</p><p>Just wanted to check in after our last conversation. I was looking over your current portfolio data and noticed a few compliance markers that DEED could help tighten up before the next audit cycle.</p><p>No pressure at all, but I've put together a brief summary of how our automated audit history tool would handle your current documentation workflow. It's designed to give you that cognitive breathing room we talked about.</p><p>Would you be open to a 10-minute walkthrough next Tuesday?</p><p>Best,<br>Alex</p></div>
+                </div>
+                <div style="display:flex;gap:10px;margin-top:14px;justify-content:center;">
+                  <button class="btn btn-outline btn-sm" onclick="editEmail()">✏ Edit Before Copying</button>
+                  <button class="btn btn-outline btn-sm" onclick="regenEmail()">↺ Regenerate</button>
+                </div>
+                <div style="margin-top:10px;text-align:center;"><button class="btn btn-primary" style="padding:11px 32px;" onclick="copyEmail()">📋 Copy to Clipboard</button></div>
+              </div>
+            </div>
+            <div>
+              <div class="ctx-card">
+                <h4>Lead Context</h4>
+                <div class="ctx-row"><span>Lead Type</span><span class="ctx-val">Brokerage Owner</span></div>
+                <div class="ctx-row"><span>Stage</span><span class="ctx-val">Warm Consideration</span></div>
+                <div class="ctx-row"><span>Primary Goal</span><span class="ctx-val">Audit Risk Mitigation</span></div>
+              </div>
+              <div class="ctx-card">
+                <h4>Agent Voice Profile</h4>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                  <div style="width:38px;height:38px;border-radius:50%;background:var(--indigo-pale);display:flex;align-items:center;justify-content:center;font-size:18px;">🎙</div>
+                  <div><div style="font-size:13px;font-weight:600;">"The Digital Auditor"</div><div style="font-size:12px;color:var(--muted);">Professional, Institutional</div></div>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  <span class="voice-tag">✓ No Tech-Bro jargon</span>
+                  <span class="voice-tag">✓ Mathematical harmony</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="fu-analytics" style="display:none;">
+          <div class="stat-grid">
+            <div class="stat-card"><div class="stat-label">Sequences Active</div><div class="stat-value">12</div></div>
+            <div class="stat-card"><div class="stat-label">Avg Open Rate</div><div class="stat-value">68%</div><div class="stat-sub up">↑ Industry avg 22%</div></div>
+            <div class="stat-card"><div class="stat-label">Reply Rate</div><div class="stat-value">34%</div><div class="stat-sub up">↑ +12% vs templates</div></div>
+            <div class="stat-card"><div class="stat-label">Conversions</div><div class="stat-value">8</div><div class="stat-sub">This month</div></div>
+          </div>
+          <div class="audit-list">
+            <div style="padding:16px 20px;font-weight:600;border-bottom:1px solid var(--border);">Active Sequences</div>
+            <div class="audit-row"><div style="flex:1;"><div class="audit-addr">John Smith — Brokerage Owner Sequence</div><div class="audit-meta">Step 2 of 6 · Last sent Oct 23</div></div><div class="badge active-b">Active</div></div>
+            <div class="audit-row"><div style="flex:1;"><div class="audit-addr">Sarah Lee — Investor Follow-Up</div><div class="audit-meta">Step 4 of 6 · Last sent Oct 22</div></div><div class="badge active-b">Active</div></div>
+            <div class="audit-row"><div style="flex:1;"><div class="audit-addr">Realty Group Co. — Cold Outreach</div><div class="audit-meta">Step 1 of 6 · Last sent Oct 24</div></div><div class="badge active-b">Active</div></div>
+          </div>
+          <div style="margin-top:16px;"><button class="btn btn-outline" onclick="toggleAnalytics()">← Back to Engine</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPLIANCE LIBRARY -->
+    <div id="view-library" class="app-view">
+      <div class="app-header"><h2>Compliance Library</h2><div class="header-actions"><input class="search-input" type="text" placeholder="Search library..." style="width:200px;height:36px;"></div></div>
+      <div class="app-body">
+        <p style="font-size:14px;color:var(--muted);margin-bottom:20px;">A reference guide to Fair Housing Act compliance, prohibited terms, and safe alternatives.</p>
+        <div class="lib-grid">
+          <div class="lib-card"><div style="font-size:20px;margin-bottom:8px;">👨‍👩‍👧</div><h4>Familial Status</h4><p>Avoid language that implies preference for or against families with children. One of the most commonly violated protected classes.</p><div style="margin-bottom:8px;font-size:12px;font-weight:600;color:var(--red);">Prohibited Terms:</div><div class="tag-list"><span class="tag red">perfect for couples</span><span class="tag red">no children</span><span class="tag red">adult community</span><span class="tag red">quiet households</span></div><div style="margin:10px 0 8px;font-size:12px;font-weight:600;color:var(--green);">Safe Alternatives:</div><div class="tag-list"><span class="tag">spacious living areas</span><span class="tag">tranquil setting</span><span class="tag">open floor plan</span></div></div>
+          <div class="lib-card"><div style="font-size:20px;margin-bottom:8px;">🌍</div><h4>Race & National Origin</h4><p>Describing a neighborhood's demographic composition or cultural character can constitute illegal steering under the Fair Housing Act.</p><div style="margin-bottom:8px;font-size:12px;font-weight:600;color:var(--red);">Prohibited Terms:</div><div class="tag-list"><span class="tag red">diverse neighborhood</span><span class="tag red">integrated area</span><span class="tag red">predominantly [group]</span></div><div style="margin:10px 0 8px;font-size:12px;font-weight:600;color:var(--green);">Safe Alternatives:</div><div class="tag-list"><span class="tag">vibrant community</span><span class="tag">close-knit neighborhood</span><span class="tag">thriving area</span></div></div>
+          <div class="lib-card"><div style="font-size:20px;margin-bottom:8px;">♿</div><h4>Disability</h4><p>Avoid language that implies limitations based on physical or mental ability. Focus on property features, not who can use them.</p><div style="margin-bottom:8px;font-size:12px;font-weight:600;color:var(--red);">Prohibited Terms:</div><div class="tag-list"><span class="tag red">able-bodied</span><span class="tag red">perfect for healthy</span><span class="tag red">walk to everything</span></div><div style="margin:10px 0 8px;font-size:12px;font-weight:600;color:var(--green);">Safe Alternatives:</div><div class="tag-list"><span class="tag">accessible layout</span><span class="tag">near amenities</span><span class="tag">convenient location</span></div></div>
+          <div class="lib-card"><div style="font-size:20px;margin-bottom:8px;">⛪</div><h4>Religion</h4><p>References to religious institutions or holiday traditions can create an implied preference or limitation on protected grounds.</p><div style="margin-bottom:8px;font-size:12px;font-weight:600;color:var(--red);">Prohibited Terms:</div><div class="tag-list"><span class="tag red">walk to church</span><span class="tag red">Christian community</span><span class="tag red">near synagogue</span></div><div style="margin:10px 0 8px;font-size:12px;font-weight:600;color:var(--green);">Safe Alternatives:</div><div class="tag-list"><span class="tag">near community centers</span><span class="tag">walkable area</span></div></div>
+          <div class="lib-card"><div style="font-size:20px;margin-bottom:8px;">👶</div><h4>Age / Sex</h4><p>Targeting language at specific genders or age groups (other than permitted senior housing) violates the Fair Housing Act.</p><div style="margin-bottom:8px;font-size:12px;font-weight:600;color:var(--red);">Prohibited Terms:</div><div class="tag-list"><span class="tag red">perfect for bachelor</span><span class="tag red">young women</span><span class="tag red">retiree paradise</span></div><div style="margin:10px 0 8px;font-size:12px;font-weight:600;color:var(--green);">Safe Alternatives:</div><div class="tag-list"><span class="tag">flexible layout</span><span class="tag">low-maintenance living</span></div></div>
+          <div class="lib-card"><div style="font-size:20px;margin-bottom:8px;">🏡</div><h4>Steering Risk Phrases</h4><p>Implied steering guides buyers toward or away from areas based on protected characteristics, even without explicit mention.</p><div style="margin-bottom:8px;font-size:12px;font-weight:600;color:var(--red);">High-Risk Patterns:</div><div class="tag-list"><span class="tag red">up-and-coming area</span><span class="tag red">changing neighborhood</span><span class="tag red">transitional community</span></div><div style="margin:10px 0 8px;font-size:12px;font-weight:600;color:var(--green);">Safe Alternatives:</div><div class="tag-list"><span class="tag">growing market</span><span class="tag">strong investment area</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VOICE TRAINING -->
+    <div id="view-voice" class="app-view">
+      <div class="app-header"><h2>Voice Training</h2><div class="header-actions"><button class="btn btn-outline btn-sm" onclick="toast('Changes saved!')">Save Changes</button><button class="btn btn-primary btn-sm" onclick="toast('Persona exported!')">Export Persona</button></div></div>
+      <div class="app-body">
+        <div class="vt-layout">
+          <div>
+            <div class="gen-panel" style="margin-bottom:20px;">
+              <h3>📂 Past Listings</h3>
+              <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Upload up to 50 previous listing descriptions (PDF or Word) to help the AI learn your vocabulary and stylistic nuances.</p>
+              <div class="upload-zone" onclick="simulateUpload()"><div style="font-size:28px;margin-bottom:8px;">☁</div><div style="font-size:14px;color:var(--muted);"><strong>Drag & drop files here</strong><br>or click to browse local storage</div></div>
+              <div id="file-list">
+                <div class="file-chip">📄 Summer_Collection_2023.pdf <span class="rm" onclick="removeFile(this)">✕</span></div>
+                <div class="file-chip">📄 Downtown_Loft_Copy.docx <span class="rm" onclick="removeFile(this)">✕</span></div>
+              </div>
+            </div>
+            <div class="gen-panel">
+              <h3>✏ Paste Sample Copy</h3>
+              <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Provide a few paragraphs of text that perfectly represent your professional brand voice.</p>
+              <textarea style="width:100%;min-height:150px;padding:12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;" placeholder="Paste your sample text here..."></textarea>
+              <button class="btn btn-primary" style="width:100%;margin-top:12px;justify-content:center;" onclick="toast('Sample submitted for training!')">Submit Sample</button>
+            </div>
+          </div>
+          <div>
+            <div class="status-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:12px;color:var(--muted);">Current Status</span><span style="font-size:18px;font-weight:700;color:var(--green);">85% Trained</span></div>
+              <div class="s-bar"><div class="s-bar-fill" style="width:85%;"></div></div>
+              <div style="font-size:12px;color:var(--muted);font-style:italic;">Optimization required for "Persona Calibration" phase.</div>
+            </div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:10px;">≋ Training Progress</div>
+            <div class="progress-step"><div class="ps-icon done">✓</div><div><div class="ps-title">Baseline Establishing</div><div class="ps-desc">System has successfully processed 5,000+ keywords from your history.</div></div></div>
+            <div class="progress-step"><div class="ps-icon done">✓</div><div><div class="ps-title">Compliance Alignment</div><div class="ps-desc">Anti-bias filters applied and cross-referenced with your specific style.</div></div></div>
+            <div class="progress-step"><div class="ps-icon pending">○</div><div><div class="ps-title">Persona Calibration</div><div class="ps-desc">Awaiting more sample copy to refine adjectives and sensory descriptions.</div></div></div>
+            <div class="impact-card" style="margin-top:14px;">
+              <h4>🎓 Impact on Compliance</h4>
+              <p>Our LLM uses a specialized 'Legal-Layer' that monitors your training data. By providing high-quality, compliant past listings, the AI builds a safe linguistic boundary, reducing the risk of 'steering' or unintended fair housing violations.</p>
+              <div style="font-size:12px;color:#93c5fd;cursor:pointer;">Read Technical Whitepaper →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTION -->
+    <div id="view-subscription" class="app-view">
+      <div class="app-header"><h2>Subscription & Billing</h2></div>
+      <div class="app-body">
+        <div style="display:grid;grid-template-columns:1fr 260px;gap:20px;margin-bottom:24px;">
+          <div class="sub-card">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;"><div><div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Current Subscription</div><div class="sub-name">Free Tier</div></div><div class="badge active-b">Active</div></div>
+            <div class="usage-bar-wrap"><div class="usage-bar-label"><span>Usage: 3/10 scans used</span><span>30% capacity</span></div><div class="u-bar"><div class="u-bar-fill" style="width:30%;"></div></div></div>
+            <div style="font-size:13px;color:var(--muted);font-style:italic;">Your limit resets in 12 days.</div>
+            <a style="color:var(--indigo);font-size:13px;cursor:pointer;display:block;margin-top:10px;" onclick="toast('3 listing scans, 0 audits used this month')">View Usage Details ›</a>
+          </div>
+          <div class="scale-card">
+            <h3>✦ Scale Up</h3>
+            <p style="font-size:13px;opacity:.85;margin-bottom:14px;">Unlock unlimited audits and real-time risk reporting.</p>
+            <button class="btn" style="background:#fff;color:var(--indigo);width:100%;justify-content:center;font-weight:600;" onclick="openModal('upgrade-modal')">Compare Plans</button>
+          </div>
+        </div>
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:16px;">Select a Plan</h3>
+        <div class="plan-grid">
+          <div class="plan-card"><div style="font-size:22px;margin-bottom:8px;">🚀</div><div class="plan-price">$29<span>/mo</span></div><h3 style="font-size:15px;margin:8px 0 4px;">Pro Plan</h3><p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Best for individual brokers and small offices requiring consistent compliance monitoring.</p><ul class="plan-feats"><li><span class="check">✓</span>Unlimited Document Scans</li><li><span class="check">✓</span>Exportable Audit PDF Reports</li><li><span class="check">✓</span>Email & Slack Alerts</li></ul><button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="openModal('upgrade-modal')">Upgrade to Pro</button></div>
+          <div class="plan-card"><div style="font-size:22px;margin-bottom:8px;">🏢</div><div class="plan-price" style="font-size:22px;padding-top:4px;">Custom</div><h3 style="font-size:15px;margin:8px 0 4px;">Agency Plan</h3><p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Institutional tools for large brokerages and legal departments needing custom workflows.</p><ul class="plan-feats"><li><span class="check">✓</span>Everything in Pro</li><li><span class="check">✓</span>Multi-seat User Management</li><li><span class="check">✓</span>Dedicated Account Manager</li></ul><button class="btn btn-outline" style="width:100%;justify-content:center;" onclick="toast('Sales team will contact you shortly!')">Contact Sales</button></div>
+        </div>
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:14px;text-align:center;">Compare All Features</h3>
+        <div class="cmp-table"><table><thead><tr><th>Feature</th><th>Free</th><th>Pro</th><th>Agency</th></tr></thead><tbody><tr><td>Monthly Scans</td><td>10</td><td><strong>Unlimited</strong></td><td><strong>Unlimited</strong></td></tr><tr><td>Audit History</td><td>30 Days</td><td>1 Year</td><td><strong>Forever</strong></td></tr><tr><td>Team Collaboration</td><td>—</td><td>—</td><td><strong>Yes</strong></td></tr><tr><td>API Access</td><td>—</td><td>Read-only</td><td><strong>Full CRUD</strong></td></tr><tr><td>SSO Integration</td><td>—</td><td>—</td><td><strong>Yes</strong></td></tr></tbody></table></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><h3 style="font-size:16px;font-weight:700;">Billing History</h3><button class="btn btn-outline btn-sm" onclick="toast('All invoices downloaded!')">⬇ Download All</button></div>
+        <div class="billing-sec">
+          <div class="inv-row"><div class="inv-icon">🧾</div><div style="flex:1;"><div style="font-size:14px;font-weight:500;">Invoice #DEED-2024-001</div><div style="font-size:12px;color:var(--muted);">October 12, 2024</div></div><div style="font-weight:600;">$0.00</div><button class="btn btn-outline btn-sm" onclick="toast('Invoice downloaded!')">⬇</button></div>
+          <div class="inv-row"><div class="inv-icon">🧾</div><div style="flex:1;"><div style="font-size:14px;font-weight:500;">Invoice #DEED-2024-000</div><div style="font-size:12px;color:var(--muted);">September 12, 2024</div></div><div style="font-weight:600;">$0.00</div><button class="btn btn-outline btn-sm" onclick="toast('Invoice downloaded!')">⬇</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="view-settings" class="app-view">
+      <div class="app-header"><h2>Settings</h2></div>
+      <div class="app-body">
+        <div class="settings-tabs-row">
+          <div class="s-tab active" onclick="setTab(this,'st-profile')">Profile</div>
+          <div class="s-tab" onclick="setTab(this,'st-notif')">Notifications</div>
+          <div class="s-tab" onclick="setTab(this,'st-integ')">Integrations</div>
+          <div class="s-tab" onclick="setTab(this,'st-sec')">Security</div>
+        </div>
+        <div id="st-profile">
+          <div class="settings-sec"><h3>Profile Information</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;"><div class="form-row"><label>Full Name</label><input type="text" value="Marcus Thorne"></div><div class="form-row"><label>Title</label><input type="text" value="Principal Broker"></div><div class="form-row"><label>Work Email</label><input type="email" value="marcus@thorne-realty.com"></div><div class="form-row"><label>Phone</label><input type="tel" value="+1 (512) 555-0182"></div><div class="form-row" style="grid-column:1/-1;"><label>Brokerage Name</label><input type="text" value="Thorne Realty Group"></div></div><button class="btn btn-primary" style="margin-top:8px;" onclick="toast('Profile updated!')">Save Changes</button></div>
+          <div class="settings-sec"><h3>Default Compliance Settings</h3><div style="display:flex;flex-direction:column;gap:14px;"><label class="inline-label"><input type="checkbox" checked> Auto-scan all new listings on save</label><label class="inline-label"><input type="checkbox" checked> Block publishing on critical violations</label><label class="inline-label"><input type="checkbox"> Require manual approval for all AI-generated content</label><label class="inline-label"><input type="checkbox" checked> Enable Slack alerts for new violations</label></div><button class="btn btn-primary" style="margin-top:16px;" onclick="toast('Settings saved!')">Save Preferences</button></div>
+        </div>
+        <div id="st-notif" style="display:none;">
+          <div class="settings-sec"><h3>Notification Preferences</h3><div style="display:flex;flex-direction:column;gap:14px;"><label class="inline-label"><input type="checkbox" checked> Email on Critical Violations</label><label class="inline-label"><input type="checkbox" checked> Daily Compliance Summary</label><label class="inline-label"><input type="checkbox"> Weekly Portfolio Report</label><label class="inline-label"><input type="checkbox" checked> Slack DM for new audit results</label><label class="inline-label"><input type="checkbox"> SMS alerts for critical issues</label></div><button class="btn btn-primary" style="margin-top:16px;" onclick="toast('Notifications saved!')">Save</button></div>
+        </div>
+        <div id="st-integ" style="display:none;">
+          <div class="settings-sec"><h3>Integrations</h3><div style="display:flex;flex-direction:column;gap:14px;"><div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border);border-radius:8px;"><div style="display:flex;align-items:center;gap:12px;"><span style="font-size:22px;">💬</span><div><div style="font-weight:600;font-size:14px;">Slack</div><div style="font-size:12px;color:var(--muted);">Get violation alerts in your workspace</div></div></div><button class="btn btn-success btn-sm">Connected</button></div><div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border);border-radius:8px;"><div style="display:flex;align-items:center;gap:12px;"><span style="font-size:22px;">🏠</span><div><div style="font-weight:600;font-size:14px;">MLS / Zillow</div><div style="font-size:12px;color:var(--muted);">Auto-import listings for compliance check</div></div></div><button class="btn btn-outline btn-sm" onclick="toast('MLS integration coming soon!')">Connect</button></div><div style="display:flex;align-items:center;justify-content:space-between;padding:14px;border:1px solid var(--border);border-radius:8px;"><div style="display:flex;align-items:center;gap:12px;"><span style="font-size:22px;">📊</span><div><div style="font-weight:600;font-size:14px;">Google Analytics</div><div style="font-size:12px;color:var(--muted);">Track compliance impact on engagement</div></div></div><button class="btn btn-outline btn-sm" onclick="toast('Google Analytics connected!')">Connect</button></div></div></div>
+        </div>
+        <div id="st-sec" style="display:none;">
+          <div class="settings-sec"><h3>Security Settings</h3><div class="form-row"><label>Current Password</label><input type="password" placeholder="••••••••••••"></div><div class="form-row"><label>New Password</label><input type="password" placeholder="••••••••••••"></div><div class="form-row"><label>Confirm New Password</label><input type="password" placeholder="••••••••••••"></div><button class="btn btn-primary" onclick="toast('Password updated!')">Update Password</button></div>
+          <div class="settings-sec"><h3>Two-Factor Authentication</h3><p style="font-size:14px;color:var(--muted);margin-bottom:16px;">Add an extra layer of security to your account using an authenticator app.</p><button class="btn btn-outline" onclick="toast('2FA setup email sent!')">Enable 2FA</button></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- UPGRADE MODAL -->
+<div class="modal-overlay" id="upgrade-modal">
+  <div class="modal">
+    <div class="modal-title">Upgrade to Pro Plan</div>
+    <div class="modal-sub">Unlock unlimited audits, brand voice training, and real-time risk reporting for just $29/mo.</div>
+    <div style="background:var(--indigo-pale);border-radius:10px;padding:20px;margin-bottom:16px;">
+      <div style="font-size:28px;font-family:'DM Serif Display',serif;color:var(--indigo);margin-bottom:10px;">$29<span style="font-size:14px;font-family:'DM Sans',sans-serif;color:var(--muted);">/month</span></div>
+      <ul style="list-style:none;"><li style="font-size:13px;padding:4px 0;"><span class="check">✓</span> Unlimited Scans</li><li style="font-size:13px;padding:4px 0;"><span class="check">✓</span> Exportable PDF Reports</li><li style="font-size:13px;padding:4px 0;"><span class="check">✓</span> Brand Voice Training</li><li style="font-size:13px;padding:4px 0;"><span class="check">✓</span> Email & Slack Alerts</li></ul>
+    </div>
+    <div class="form-row"><label>Card Number</label><input type="text" placeholder="4242 4242 4242 4242"></div>
+    <div class="form-2col"><div class="form-row"><label>Expiry</label><input type="text" placeholder="MM/YY"></div><div class="form-row"><label>CVC</label><input type="text" placeholder="123"></div></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('upgrade-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="completeUpgrade()">Upgrade Now — $29/mo</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const auditData={
+  '4823':{addr:'4823 Highland Avenue, Austin TX',id:'#DEED-9942',time:'Oct 24, 2024 14:22 CST',status:'critical',orig:'Gorgeous mid-century modern home in a quiet neighborhood. This property is <span class="hl-bad">perfect for professional couples or singles</span> who want to <span class="hl-bad">avoid the noise of busy households</span>. Features a large private office and gourmet kitchen.',sugg:'Gorgeous mid-century modern home in a quiet neighborhood. This property <span class="hl-good">offers spacious living areas</span> for those who value tranquility. Features a large private office and gourmet kitchen.',viol:{type:'Familial Status Discrimination',desc:'Phrases like "perfect for professional couples or singles" and "avoid the noise of busy households" can be interpreted as steering away families with children, violating the Fair Housing Act.'}},
+  '2201':{addr:'2201 Lakefront Drive, Chicago IL',id:'#DEED-9941',time:'Oct 23, 2024 10:05 CST',status:'warning',orig:'Beautiful lakefront property in a <span class="hl-bad">changing neighborhood</span> with great investment potential. <span class="hl-bad">Walk to the local parish</span> and community centers.',sugg:'Beautiful lakefront property in a <span class="hl-good">growing market</span> with great investment potential. Located near <span class="hl-good">community centers</span> and local amenities.',viol:{type:'Steering Risk & Religious Reference',desc:'"Changing neighborhood" may imply demographic shifts. "Walk to the local parish" references religious institutions, which can create an implied preference under Fair Housing guidelines.'}},
+  '7710':{addr:'7710 Sunset Blvd, Los Angeles CA',id:'#DEED-9940',time:'Oct 22, 2024 09:30 PST',status:'passed',orig:'Stunning mid-century architectural gem with panoramic canyon views. Featuring 4 bedrooms, 3 baths, a chef\'s kitchen, and resort-style pool on half an acre of beautifully landscaped grounds.',sugg:'Stunning mid-century architectural gem with panoramic canyon views. Featuring 4 bedrooms, 3 baths, a chef\'s kitchen, and resort-style pool on half an acre of beautifully landscaped grounds.',viol:null},
+  '900':{addr:'900 Oak Street, Nashville TN',id:'#DEED-9939',time:'Oct 21, 2024 15:44 CST',status:'passed',orig:'Charming craftsman bungalow on a tree-lined street. Open concept living, updated kitchen with quartz countertops, and a private backyard perfect for entertaining. Walkable to shops and dining.',sugg:'Charming craftsman bungalow on a tree-lined street. Open concept living, updated kitchen with quartz countertops, and a private backyard perfect for entertaining. Walkable to shops and dining.',viol:null},
+  '1450':{addr:'1450 Magnolia Lane, Atlanta GA',id:'#DEED-9938',time:'Oct 20, 2024 11:00 CST',status:'warning',orig:'Spacious family home in an <span class="hl-bad">up-and-coming area</span>. Ideal for <span class="hl-bad">young professionals</span> looking to get into the market early.',sugg:'Spacious family home in a <span class="hl-good">growing investment area</span>. Ideal for those looking to build equity in a dynamic market.',viol:{type:'Steering Risk & Age Preference',desc:'"Up-and-coming area" implies demographic transition. "Young professionals" targets a specific age group, which may violate Fair Housing age protections.'}}
+};
+
+const stepLabels=['Email 1 of 6: Initial Outreach','Email 2 of 6: Value Proposition','Email 3 of 6: Case Study Share','Email 4 of 6: Objection Handling','Email 5 of 6: Demo Offer','Email 6 of 6: Final Follow-Up'];
+const emailTpls=[
+  {s:'Subject: Quick question about your compliance workflow',b:'<p>Hi John,</p><p>I came across your brokerage while researching firms in the Austin market and was impressed by your portfolio. I\'d love to share how DEED has been helping brokerages like yours reduce their Fair Housing review time from hours to minutes.</p><p>Would you be open to a quick chat?</p><p>Best,<br>Alex</p>'},
+  {s:'Subject: Checking in — Deed compliance update',b:'<p>Hi John,</p><p>Just wanted to check in after our last conversation. I was looking over your current portfolio data and noticed a few compliance markers that DEED could help tighten up before the next audit cycle.</p><p>No pressure at all, but I\'ve put together a brief summary of how our automated audit history tool would handle your current documentation workflow. It\'s designed to give you that cognitive breathing room we talked about.</p><p>Would you be open to a 10-minute walkthrough next Tuesday?</p><p>Best,<br>Alex</p>'},
+  {s:'Subject: How Meridian Realty saved $40k with DEED',b:'<p>Hi John,</p><p>I wanted to share a quick story. Meridian Realty Group avoided a $26k HUD fine last quarter because DEED flagged a Familial Status issue before the listing went live. The audit took 8 seconds.</p><p>I can pull together a similar risk profile for your current portfolio if you\'d like. No strings attached.</p><p>Best,<br>Alex</p>'},
+  {s:'Subject: Addressing your concerns about AI compliance tools',b:'<p>Hi John,</p><p>I know there\'s often skepticism around AI tools — especially for something as serious as regulatory compliance. Completely fair.</p><p>DEED isn\'t a replacement for legal counsel. It\'s a first-line audit layer that catches 98%+ of common Fair Housing language patterns before they reach your attorney\'s desk.</p><p>Best,<br>Alex</p>'},
+  {s:'Subject: 15 minutes to see DEED in action?',b:'<p>Hi John,</p><p>I\'d love to show you what DEED looks like applied to a few of your actual listings — with your permission, of course. I can set up a screen-share where we run a live audit on 3-5 properties.</p><p>Does Thursday at 2pm CST work for you?</p><p>Best,<br>Alex</p>'},
+  {s:'Subject: Last note — the offer stands',b:'<p>Hi John,</p><p>I\'ll keep this brief. The 14-day free trial offer is still open. No card required. If compliance ever becomes a priority, I\'m here.</p><p>Wishing you continued success regardless.</p><p>Best,<br>Alex</p>'}
+];
+let curStep=2;
+let analyticsOpen=false;
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('app').classList.remove('active');
+  const el=document.getElementById(id);
+  if(el){el.classList.add('active');}
+  window.scrollTo(0,0);
+}
+
+function showApp(view){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('app').classList.add('active');
+  document.querySelectorAll('.app-view').forEach(v=>v.classList.remove('active'));
+  const v=document.getElementById('view-'+view);
+  if(v)v.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const ni=document.getElementById('nav-'+view);
+  if(ni)ni.classList.add('active');
+}
+
+function showAuditDetail(id){
+  const d=auditData[id];if(!d)return;
+  const c=document.getElementById('audit-detail-content');
+  const passed=d.status==='passed';
+  const sc={'critical':'badge critical','warning':'badge warn','passed':'badge pass'};
+  const sl={'critical':'⚠ Critical Violation','warning':'⚠ Warning','passed':'✓ Passed'};
+  c.innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div><div style="font-size:18px;font-weight:700;">${d.addr}</div><div style="font-size:13px;color:var(--muted);">Audit ID: ${d.id} · Timestamp: ${d.time}</div></div>
+      <div class="${sc[d.status]}" style="margin-left:auto;">${sl[d.status]}</div>
+    </div>
+    ${passed?'<div style="background:var(--green-pale);border:1px solid #bbf7d0;border-radius:var(--r);padding:20px;margin-bottom:20px;display:flex;align-items:center;gap:12px;"><span style="font-size:24px;">✅</span><div><strong style="color:var(--green);">Listing Passed All Compliance Checks</strong><br><span style="font-size:13px;color:var(--muted);">No Fair Housing violations detected. This listing is cleared for publication.</span></div></div>':''}
+    <div class="cmp-grid">
+      <div class="cmp-card"><h4>Original Listing Text</h4><div class="orig-text">${d.orig}</div></div>
+      <div class="cmp-card" style="${!passed?'border-color:#bbf7d0;background:var(--green-pale);':''}"><h4>DEED Suggestion</h4><div class="orig-text">${d.sugg}</div></div>
+    </div>
+    ${d.viol?`<div class="viol-card"><div class="viol-title">⚠ ${d.viol.type}</div><div class="viol-desc">${d.viol.desc}</div><div class="viol-actions"><button class="btn btn-outline btn-sm" onclick="toast('Warning dismissed. Listing marked as reviewed.')">Dismiss Warning</button><button class="btn btn-primary btn-sm" onclick="applyFix()">✦ Apply Fixes</button></div></div>`:''}
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-outline" onclick="showApp('audit')">← Back to History</button>
+      <button class="btn btn-outline" onclick="toast('Audit PDF exported!')">Export PDF</button>
+      ${!passed?`<button class="btn btn-primary" onclick="runAudit()">Run New Audit</button>`:''}
+    </div>`;
+  showApp('auditdetail');
+}
+
+function applyFix(){toast('AI fixes applied! Listing updated successfully.');setTimeout(()=>showApp('audit'),1400);}
+function runAudit(){toast('Scanning listing...');setTimeout(()=>toast('Audit complete — 0 violations found!'),1800);}
+
+function filterAudits(q){
+  document.querySelectorAll('#audit-list .audit-row').forEach(r=>{
+    r.style.display=(r.dataset.addr||'').toLowerCase().includes(q.toLowerCase())?'':'none';
+  });
+}
+
+function generateListing(){
+  const addr=document.getElementById('g-addr').value||'123 Maple Avenue';
+  const price=document.getElementById('g-price').value||'$1,250,000';
+  const feats=document.getElementById('g-feats').value||'gourmet kitchen';
+  const usp=document.getElementById('g-usp').value||'stunning views';
+  const out=document.getElementById('g-output');
+  out.innerHTML='<p style="color:var(--muted);font-style:italic;">Generating compliant listing copy...</p>';
+  setTimeout(()=>{
+    out.innerHTML=`<p>Welcome to your future sanctuary at ${addr}. From the moment you step through the solid oak front door, you'll feel the meticulous care that defines this residence. The ${feats.split(',')[0].trim()} isn't just a feature — it's the centerpiece of a home designed for how people actually live.</p><p>Listed at ${price}, this property delivers exceptional value. ${usp?'The '+usp+' transforms every morning into a moment worth savoring.':''} With premium finishes throughout, this home strikes that rare balance between sophisticated design and genuine warmth.</p><blockquote>"Every detail has been considered, and every corner tells a story of exceptional craftsmanship — a property worthy of your clients' highest expectations."</blockquote>`;
+  },1200);
+}
+function copyDraft(){navigator.clipboard.writeText(document.getElementById('g-output').innerText).catch(()=>{});toast('Listing copy copied to clipboard!');}
+function enhanceDraft(){toast('Enhancing prose...');setTimeout(()=>{document.getElementById('g-output').innerHTML+='<p><em>The property\'s architecture speaks to a timeless sensibility — one that doesn\'t chase trends but sets them. Natural light floods every room, and the seamless indoor-outdoor flow invites a lifestyle that few properties can genuinely offer at this price point.</em></p>';toast('Prose enhanced!');},1000);}
+function discardDraft(){document.getElementById('g-output').innerHTML='<p style="color:var(--muted);font-style:italic;">Fill in the property details and click Generate Description to create your listing.</p>';toast('Draft discarded.');}
+function finalizeDraft(){toast('Listing finalized and ready to publish!');}
+
+function setStep(n){
+  curStep=n;
+  document.querySelectorAll('#steps-bar .step-pill').forEach((p,i)=>{p.classList.remove('active','done');if(i+1<n)p.classList.add('done');else if(i+1===n)p.classList.add('active');});
+  document.getElementById('step-label').textContent=stepLabels[n-1];
+  document.getElementById('e-subject').textContent=emailTpls[n-1].s;
+  document.getElementById('e-body').innerHTML=emailTpls[n-1].b;
+}
+function editEmail(){const b=document.getElementById('e-body');b.innerHTML=`<textarea style="width:100%;min-height:200px;font-family:inherit;font-size:14px;border:1px solid var(--border);border-radius:8px;padding:12px;">${b.innerText}</textarea>`;toast('Email is now editable');}
+function regenEmail(){toast('Regenerating with updated tone...');setTimeout(()=>{document.getElementById('e-body').innerHTML=emailTpls[curStep-1].b;toast('Email regenerated!');},1000);}
+function copyEmail(){navigator.clipboard.writeText(document.getElementById('e-body').innerText).catch(()=>{});toast('Email copied to clipboard!');}
+function toggleAnalytics(){analyticsOpen=!analyticsOpen;document.getElementById('fu-main').style.display=analyticsOpen?'none':'block';document.getElementById('fu-analytics').style.display=analyticsOpen?'block':'none';}
+
+function simulateUpload(){const l=document.getElementById('file-list');const d=document.createElement('div');d.className='file-chip';d.innerHTML=`📄 NewListing_${Math.floor(Math.random()*999)}.pdf <span class="rm" onclick="removeFile(this)">✕</span>`;l.appendChild(d);toast('File uploaded!');}
+function removeFile(el){el.closest('.file-chip').remove();toast('File removed.');}
+
+function setTab(el,id){document.querySelectorAll('.s-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');['st-profile','st-notif','st-integ','st-sec'].forEach(t=>{const e=document.getElementById(t);if(e)e.style.display=t===id?'block':'none';});}
+
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function completeUpgrade(){closeModal('upgrade-modal');toast('🎉 Welcome to Pro! Unlimited scans unlocked.');}
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+let toastT;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2600);}
+
+function doSignup(){
+  const n=document.getElementById('su-name').value,e=document.getElementById('su-email').value,p=document.getElementById('su-pass').value;
+  if(!n||!e||!p){toast('Please fill in all fields');return;}
+  if(p.length<12){toast('Password must be at least 12 characters');return;}
+  showApp('dashboard');
+}
+</script>
+</body>
+</html>
